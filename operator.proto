@@ -1,0 +1,64 @@
+syntax = "proto3";
+
+package Brother;
+
+service Agents {
+  rpc initProfitPersonInfo(initProfitPersonRequest) returns(initProfitPersonResponse);  //把运营商初始化为默认的分成人员
+  rpc getGroupIdsFromShare(getShareGroupListByShareUserRequest)  returns(getShareGroupListByShareUserResponse);  //根据合伙人ID返回对应的分组ID集
+  rpc getCompositeUserInfo(getCompositeUserInfoRequest) returns(getCompositeUserInfoResponse);  //通过用户类型和手机号获取对应用户信息
+}
+
+message baseField {
+    int64 u_id       = 1;
+     globalsUse globalsUses = 4;
+    int32 u_type     = 2;
+    int32 company_id = 3;
+}
+
+message globalsUse {
+  string phone = 1;
+}
+
+message commonField {
+  int32 group_id = 1;
+}
+
+//把运营商初始化为默认的分成人员
+message initProfitPersonRequest {
+    int32 group_id       = 1;
+    baseField baseFields = 2;
+}
+
+message initProfitPersonResponse {}
+
+//根据合伙人ID返回对应的分组ID集
+message getShareGroupListByShareUserRequest {
+  baseField baseFields     = 1;
+  commonField commonFields = 2;
+  string userName = 3;
+  string email    = 4;
+}
+
+message getShareGroupListByShareUserResponse {
+    repeated string groupIds = 1;
+}
+
+//通过用户类型和手机号获取对应用户信息
+message getCompositeUserInfoRequest {
+  int32 u_type     = 1;
+  int32 company_id = 2;
+  string phone     = 3;
+}
+
+message getCompositeUserInfoResponse {
+  string id         = 1;
+  string nickname   = 2;
+  string phone      = 3;
+  string head_img_url = 4;
+  getCompositeUserInfoChildResponse others = 5;
+}
+
+message getCompositeUserInfoChildResponse {
+  int64 urls = 1;
+  string cate_name = 2;
+}
