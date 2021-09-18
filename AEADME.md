@@ -18,47 +18,53 @@
 #### 注：--speed_out可以单独使用，如上实例。也可以同时结合其他指令一并使用：
 - 例：通过配置好的 *.proto 文件生成php的客户端、服务端代码，同时生成代理服务类代码：
 - protoc --php_out=. --grpc_out=. --plugin=protoc-gen-grpc=/usr/local/bin/grpc_php_plugin --speed_out=. *.proto
-- 生成好的代码如下：
+> 生成好的代码如下：
 ```php
-/**
- * Auto Generated Service Classes
- * source: Protos/Brother/userCenter.proto
- *
- * Class Agent
- * @GrpcService(prefix="Agents/Agent")
- */
-class AgentService
-{
-   /**
-    * @param \Agents\BaseRequest $request
-    * @return \Agents\ResultResponse
-    */
-    public function getJjAgentInfo(
-        \Agents\BaseRequest $request
-    ): \Agents\ResultResponse
-    {
-       try {
-          $response = new \Agents\ResultResponse;
-
-          $result = \bean(AgentController::class)->getJjAgentInfo(\context()->getRequest());
-          if (empty($result['data'])) {
-              return $response;
-          }
-
-          foreach ($result['data'] as $filed => $value) {
-              $response->{'set' . $filed}($value);
-          }
-
-          return $response;
-      } catch (\Throwable $e) {
-          Log::error("gRpcServiceCallError", [
-              'errorMsg'   => $e->getMessage(),
-              'errorSite'  => $e->getFile() .'|'. $e->getLine(),
-              'callMethod' => 'Agents/Agent/getJjAgentInfo'
-          ]);
-      }
-    }
-}
+ /**
+  * Auto Generated Service Classes
+  * source: userCenter.proto
+  *
+  * Class Agent
+  * @GrpcService(prefix="Agents/Agent")
+  */
+ class AgentService
+ {
+    /**
+     * @param \Agents\BaseRequest $request
+     * @return \Agents\ResultResponse
+     */
+     public function getJjAgentInfo(
+         \Agents\BaseRequest $request
+     ): \Agents\ResultResponse
+     {
+        try {
+           $result = \bean(AgentsController::class)->getJjAgentInfo(\context()->getRequest());
+           if ($result['code'] != 1) {
+               throw new \Exception($result['message'] ?? '调用gRPC服务端[ getJjAgentInfo ]接口返回结果失败');
+           }
+ 
+           $response = new \Agents\ResultResponse;
+ 
+           if (empty($result['data'])) {
+               return $response;
+           }
+ 
+           foreach ($result['data'] as $filed => $value) {
+               $response->{'set' . $filed}($value);
+           }
+ 
+           return $response;
+       } catch (\Throwable $e) {
+           Log::error("gRpcServiceCallError", [
+               'errorMsg'   => $e->getMessage(),
+               'errorSite'  => $e->getFile() .'|'. $e->getLine(),
+               'callMethod' => 'Agents/Agent/getJjAgentInfo'
+           ]);
+ 
+           throw new \Exception($e->getMessage(), $e->getCode());
+       }
+     }
+ }
 ```
 
 ####  --speed_out指令和其他指令一起使用时，没有先后顺序，可以随意组合。
