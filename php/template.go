@@ -39,9 +39,13 @@ class {{ .Service.Name | Service }}
     ): \{{ $ns.Namespace }}\{{ name $ns $m.OutputType }}
     {
        try {
+          $result = \bean({{ $.Service.Name }}Controller::class)->{{ $m.Name }}(\context()->getRequest());
+          if ($result['code'] != 1) {
+              throw new \Exception($result['message'] ?? '调用gRPC服务端[ {{ $m.Name }} ]接口返回结果失败');
+          }
+
           $response = new \{{ $ns.Namespace }}\{{ name $ns $m.OutputType }};
 
-          $result = \bean({{ $.Service.Name }}Controller::class)->{{ $m.Name }}(\context()->getRequest());
           if (empty($result['data'])) {
               return $response;
           }
@@ -57,6 +61,8 @@ class {{ .Service.Name | Service }}
               'errorSite'  => $e->getFile() .'|'. $e->getLine(),
               'callMethod' => '{{ $ns.Namespace }}/{{ $.Service.Name }}/{{ $m.Name }}'
           ]);
+
+          throw new \Exception($e->getMessage(), $e->getCode());
       }
     }
 {{end -}}
